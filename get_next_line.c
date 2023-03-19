@@ -1,7 +1,8 @@
 
-
+#include <stdio.h>
 #include "get_next_line.h"
 #include <fcntl.h>
+#include "stdlib.h"
 
 static char	*ft_read_line(char *stash)
 {
@@ -13,7 +14,9 @@ static char	*ft_read_line(char *stash)
 		return (NULL);
 	while (stash[size] && stash[size] != '\n')
 		size++;
-	s = malloc(sizeof(char) * (size + 2));
+	if (stash[size] =='\n')
+		size ++;
+	s = malloc(sizeof(char) * (size + 1));
 	if (!s)
 		return (NULL);
 	size = 0;
@@ -87,29 +90,41 @@ char	*get_next_line(int fd)
 	char		*line;
 	static char	*next_line;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (0);
-	next_line = ft_read_buffer(fd, next_line);
-	if (!next_line)
+	if  (fd < 0 || BUFFER_SIZE <= 0 || read(fd,0,0) <0){
+		
+		if (!next_line)
+			return (NULL);
+		free(next_line);
 		return (NULL);
+		}
+	next_line = ft_read_buffer(fd, next_line);	
+	
 	line = ft_read_line(next_line);
 	next_line = ft_save_stash(next_line);
 	return (line);
 }
 /*
+void seeleaks()
+{
+	system("leaks -q a.out");
+}
+
 int main()
 {
-    //int fd;
+    int fd;
 	char *str;
+	int count;
    
-    //fd = open("archivo.txt", O_RDONLY);
-
-    while(1)
+	atexit(&seeleaks);
+    fd = open("archivo.txt", O_RDONLY);
+	count = 0;
+    while(count < 5)
     {
-        str = get_next_line(0);
-        if (!str)
-            break;
+        str = get_next_line(fd);
 		printf("%s", str);
         free(str);
+		count++;
     }
-}*/
+	close(fd);
+}
+*/
