@@ -10,7 +10,7 @@ static char	*ft_read_line(char *stash)
 	char	*s;
 
 	size = 0;
-	if (!stash[size])
+	if (!stash || !stash[size])
 		return (NULL);
 	while (stash[size] && stash[size] != '\n')
 		size++;
@@ -46,11 +46,11 @@ static char	*ft_save_stash(char *stash)
 	if (!stash[size])
 	{
 		free(stash);
-		return (0);
+		return (NULL);
 	}
 	s = ft_calloc(sizeof(char), (ft_strlen(stash) - size + 1));
 	if (!s)
-		return (0);
+		return (NULL);
 	size++;
 	i = 0;
 	while (stash[size])
@@ -67,7 +67,7 @@ static char	*ft_read_buffer(int fd, char *stash)
 
 	buff = ft_calloc(sizeof(char), (BUFFER_SIZE + 1));
 	if (!buff)
-		return (0);
+		return (NULL);
 	bytes_readed = 1;
 	while (!ft_strchr(stash, '\n') && bytes_readed != 0)
 	{
@@ -90,11 +90,12 @@ char	*get_next_line(int fd)
 	char		*line;
 	static char	*next_line;
 
-	if  (fd < 0 || BUFFER_SIZE <= 0 || read(fd,0,0) <0){
+	if  (fd < 0 || BUFFER_SIZE <= 0 || read(fd,0,0) < 0){
 		
 		if (!next_line)
 			return (NULL);
 		free(next_line);
+		next_line = NULL; 
 		return (NULL);
 		}
 	next_line = ft_read_buffer(fd, next_line);	
